@@ -157,6 +157,12 @@ body {
   background: var(--surface);
 }
 
+/* Full-width row of its own, above the calendar and project pair. */
+.task-toggle {
+  flex: none;
+  width: 100%;
+}
+
 .calendar-toggle.active {
   border-color: var(--accent);
   color: var(--accent);

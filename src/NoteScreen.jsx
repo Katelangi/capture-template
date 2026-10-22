@@ -10,6 +10,10 @@ export default function NoteScreen() {
   const [projects, setProjects] = useState([]);
   const [calendarEnabled, setCalendarEnabled] = useState(false);
   const [project, setProject] = useState("");
+  // "Add to tasks" sends the note straight to the Tasks database, skipping
+  // the Capture page, for things that should show up on Tasks right away.
+  const [addAsTask, setAddAsTask] = useState(false);
+  const [dueDate, setDueDate] = useState("");
   const textareaRef = useRef(null);
   // Same live Project list the Tasks screen filters by, so this dropdown
   // is never hardcoded to one business either.
@@ -78,6 +82,28 @@ export default function NoteScreen() {
     }
   }
 
+  function todayLocal() {
+    const d = new Date();
+    const pad = (n) => String(n).padStart(2, "0");
+    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+  }
+
+  // Default the due date to today so a reminder lands in "Today" on the
+  // Tasks screen instead of "Later".
+  function toggleTask() {
+    if (!addAsTask && !dueDate) setDueDate(todayLocal());
+    setAddAsTask(!addAsTask);
+  }
+
+  // First line becomes the task title, any further lines become its notes.
+  function taskParts(text) {
+    const lines = text
+      .split("\n")
+      .map((l) => l.replace(/^•\s*/, "").trim())
+      .filter(Boolean);
+    return { title: lines[0] || "Untitled task", notes: lines.slice(1).join("\n") };
+  }
+
   function firstLine(text) {
     const line = text
       .split("\n")
@@ -92,11 +118,27 @@ export default function NoteScreen() {
     setStatus("saving");
     try {
       const calendar = addToCalendar ? { date: eventDate, time: eventTime } : null;
-      const res = await authedFetch("/api/capture", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ note, calendar, project: project || null }),
-      });
+      let res;
+      if (addAsTask) {
+        const { title, notes } = taskParts(note);
+        res = await authedFetch("/api/tasks", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          // With the calendar on, its date is the due date.
+          body: JSON.stringify({
+            title,
+            notes,
+            project: project || null,
+            due: (addToCalendar ? eventDate : dueDate) || null,
+          }),
+        });
+      } else {
+        res = await authedFetch("/api/capture", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ note, calendar, project: project || null }),
+        });
+      }
       if (!res.ok) throw new Error("save failed");
 
       let calendarFailed = false;
@@ -116,11 +158,14 @@ export default function NoteScreen() {
         calendarFailed = !calRes.ok;
       }
 
+      const savedAsTask = addAsTask;
       setNote("");
       setAddToCalendar(false);
       setEventDate("");
       setEventTime("");
-      setStatus(calendarFailed ? "calendar-error" : "saved");
+      setAddAsTask(false);
+      setDueDate("");
+      setStatus(calendarFailed ? "calendar-error" : savedAsTask ? "saved-task" : "saved");
       setTimeout(() => setStatus(""), calendarFailed ? 3000 : 1500);
     } catch (err) {
       setStatus("error");
@@ -145,6 +190,26 @@ export default function NoteScreen() {
           rows={1}
         />
       </div>
+
+      <button
+        type="button"
+        className={`calendar-toggle task-toggle ${addAsTask ? "active" : ""}`}
+        onClick={toggleTask}
+        aria-pressed={addAsTask}
+      >
+        {addAsTask ? "✓ Add to tasks" : "Add to tasks"}
+      </button>
+
+      {addAsTask && !addToCalendar && (
+        <div className="calendar-fields">
+          <input
+            type="date"
+            value={dueDate}
+            onChange={(e) => setDueDate(e.target.value)}
+            aria-label="Due date"
+          />
+        </div>
+      )}
 
       <div className="capture-options-row">
         {calendarEnabled && (
@@ -197,6 +262,7 @@ export default function NoteScreen() {
       </button>
 
       {status === "saved" && <p className="status-msg success">Saved</p>}
+      {status === "saved-task" && <p className="status-msg success">Added to Tasks</p>}
       {status === "calendar-error" && <p className="status-msg error">Saved, but couldn't add to calendar</p>}
       {status === "error" && <p className="status-msg error">Couldn't save, try again</p>}
     </div>

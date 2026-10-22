@@ -4,7 +4,9 @@ A small mobile web app for quick capture and tasks, backed by your own
 Notion. One screen to type a thought into a Notion page, one screen to
 see and check off your tasks. Optionally, it can also add an event to your
 Google Calendar. Checking off a task only updates that task's Status in
-Notion.
+Notion. Notes that should skip the Capture page and show
+up as a task right away (a reminder, say) can be sent straight to the Tasks
+database with the "Add to tasks" button on the Capture screen.
 
 Your data stays in your own Notion workspace. Each person runs their own
 copy of this app with their own passcode, nothing is shared between

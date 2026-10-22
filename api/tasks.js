@@ -70,6 +70,9 @@ export default async function handler(req, res) {
   if (req.method === "PATCH") {
     return handlePatch(req, res);
   }
+  if (req.method === "POST") {
+    return handlePost(req, res);
+  }
   return res.status(405).json({ error: "Method not allowed" });
 }
 
@@ -134,6 +137,43 @@ async function handlePatch(req, res) {
   } catch (err) {
     console.error(err);
     return res.status(500).json({ error: "Failed to update task", detail: err.message });
+  }
+}
+
+// POST /api/tasks  body: { title, notes?, project?, due? }
+// Creates a task straight in the Tasks database, skipping the Capture page
+// (and so skipping any later sorting of that page). For things that should
+// show up on the Tasks screen right away, like a reminder. due is a
+// YYYY-MM-DD date string.
+async function handlePost(req, res) {
+  try {
+    const { title, notes, project, due } = req.body || {};
+    if (typeof title !== "string" || !title.trim()) {
+      return res.status(400).json({ error: "title is required" });
+    }
+    if (due && !/^\d{4}-\d{2}-\d{2}$/.test(due)) {
+      return res.status(400).json({ error: "due must be a YYYY-MM-DD date" });
+    }
+
+    // Notion caps a single rich text item at 2000 characters.
+    const text = (s) => [{ type: "text", text: { content: s.slice(0, 2000) } }];
+    const properties = {
+      Task: { title: text(title.trim()) },
+      Status: { select: { name: "To Do" } },
+    };
+    if (project) properties.Project = { select: { name: project } };
+    if (due) properties.Due = { date: { start: due } };
+    if (typeof notes === "string" && notes.trim()) properties.Notes = { rich_text: text(notes.trim()) };
+
+    const page = await notion.pages.create({
+      parent: { type: "data_source_id", data_source_id: await getDataSourceId() },
+      properties,
+    });
+
+    return res.status(200).json({ ok: true, id: page.id });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ error: "Failed to create task", detail: err.message });
   }
 }
 
