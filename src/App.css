@@ -177,11 +177,11 @@ body {
   cursor: pointer;
 }
 
-/* Three controls share this row, so the two pills tighten up a little. */
-.capture-options-row .calendar-toggle,
-.capture-options-row .project-select {
-  font-size: 13px;
-  padding: 10px 12px;
+/* Full-width tile above the Task checkbox and project row. Only shown on
+   deployments that have Google Calendar set up. */
+.calendar-tile {
+  flex: none;
+  width: 100%;
 }
 
 .calendar-toggle.active {

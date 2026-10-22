@@ -202,6 +202,17 @@ export default function NoteScreen() {
         </div>
       )}
 
+      {calendarEnabled && (
+        <button
+          type="button"
+          className={`calendar-toggle calendar-tile ${addToCalendar ? "active" : ""}`}
+          onClick={() => setAddToCalendar((v) => !v)}
+          aria-pressed={addToCalendar}
+        >
+          Add to calendar
+        </button>
+      )}
+
       <div className="capture-options-row">
         <label className="task-check">
           <input
@@ -212,17 +223,6 @@ export default function NoteScreen() {
           />
           Task
         </label>
-
-        {calendarEnabled && (
-          <button
-            type="button"
-            className={`calendar-toggle ${addToCalendar ? "active" : ""}`}
-            onClick={() => setAddToCalendar((v) => !v)}
-            aria-pressed={addToCalendar}
-          >
-            Add to calendar
-          </button>
-        )}
 
         <select
           className="project-select"
