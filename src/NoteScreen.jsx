@@ -82,10 +82,21 @@ export default function NoteScreen() {
     }
   }
 
-  function todayLocal() {
-    const d = new Date();
-    const pad = (n) => String(n).padStart(2, "0");
-    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+  const pad2 = (n) => String(n).padStart(2, "0");
+  const dateString = (d) => `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`;
+  const todayLocal = () => dateString(new Date());
+
+  // The empty date and time boxes look like dead space on a phone, so turning
+  // the calendar on fills them with a starting point (the next full hour) that
+  // is clearly there to be changed.
+  function toggleCalendar() {
+    if (!addToCalendar) {
+      const next = new Date();
+      next.setHours(next.getHours() + 1, 0, 0, 0);
+      if (!eventDate) setEventDate(dateString(next));
+      if (!eventTime) setEventTime(`${pad2(next.getHours())}:00`);
+    }
+    setAddToCalendar(!addToCalendar);
   }
 
   // Default the due date to today so a reminder lands in "Today" on the
@@ -206,7 +217,7 @@ export default function NoteScreen() {
         <button
           type="button"
           className={`calendar-toggle calendar-tile ${addToCalendar ? "active" : ""}`}
-          onClick={() => setAddToCalendar((v) => !v)}
+          onClick={toggleCalendar}
           aria-pressed={addToCalendar}
         >
           Add to calendar
@@ -220,7 +231,7 @@ export default function NoteScreen() {
           onClick={toggleTask}
           aria-pressed={addAsTask}
         >
-          Add to tasks
+          Instant add
         </button>
 
         <select
