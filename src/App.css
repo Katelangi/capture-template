@@ -1,0 +1,627 @@
+:root {
+  color-scheme: dark;
+  --bg: #0B0D17;
+  --surface: #161A2C;
+  --surface-2: #1E2338;
+  --ink: #F4F5FA;
+  --muted: #8D93AC;
+  --line: rgba(255, 255, 255, 0.08);
+  --accent: #E5AB36;
+  --accent-ink: #1C1509;
+  --success: #55B889;
+  --danger: #E1785F;
+  --info: #8FA6C7;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  height: 100%;
+  overflow: hidden;
+  overscroll-behavior: none;
+  touch-action: pan-y;
+}
+
+html {
+  background: var(--bg);
+}
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Dark, thin scrollbars everywhere by default, so no unstyled native
+   scrollbar can render as a stray light line against the dark app. */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--surface-2) transparent;
+}
+
+*::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: var(--surface-2);
+  border-radius: 999px;
+}
+
+.app-shell {
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--bg);
+  /* Suppresses Safari's system "swipe from the edge to go back" gesture
+     and its visual affordance. Without this, that gesture recognizer is
+     free to activate on any horizontal touch near the screen edge, its
+     hint indicator is a system UI element, not page content, so no
+     background color fix could ever have touched it. */
+  touch-action: pan-y;
+  overscroll-behavior-x: none;
+}
+
+.swipe-container {
+  flex: 1;
+  overflow: hidden;
+  background: var(--bg);
+}
+
+.screen {
+  height: 100%;
+  padding: 30px 20px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* Narrower content just on the Capture screen, so the text, checkbox,
+   and button all sit inset from the edges rather than running edge to
+   edge. Left as the base padding on .screen elsewhere (the Tasks
+   screen's table/filters need the full width). */
+.note-screen {
+  padding-left: 32px;
+  padding-right: 32px;
+  /* The subtle glow lives here rather than on body, this element isn't
+     part of the transformed sliding layer, so it can't contribute to a
+     GPU-layer edge seam the way the transformed ancestors could. */
+  background: radial-gradient(ellipse 900px 500px at 50% -10%, #1A1F35 0%, var(--bg) 60%);
+}
+
+.screen-header h1 {
+  font-size: 30px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+}
+
+.hint {
+  font-size: 14px;
+  color: var(--muted);
+  margin-top: 4px;
+}
+
+.note-input-wrap {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.note-input {
+  width: 100%;
+  border: none;
+  padding: 0;
+  font-size: 19px;
+  line-height: 1.55;
+  font-family: inherit;
+  resize: none;
+  background: transparent;
+  color: var(--ink);
+  overflow: hidden;
+}
+
+.note-input::placeholder {
+  color: var(--muted);
+}
+
+.note-input:focus {
+  outline: none;
+}
+
+.capture-options-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.calendar-toggle {
+  flex: 1;
+  min-width: 0;
+  font-size: 14px;
+  color: var(--ink);
+  cursor: pointer;
+  /* Same pill shape as the project dropdown next to it, so the two read
+     as a matching pair of controls. */
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 10px 16px;
+  background: var(--surface);
+}
+
+.calendar-toggle.active {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.calendar-fields {
+  display: flex;
+  gap: 8px;
+}
+
+.calendar-fields input {
+  flex: 1;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 14px;
+  background: var(--surface);
+  color: var(--ink);
+}
+
+.calendar-fields input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.save-button {
+  background: var(--accent);
+  color: var(--accent-ink);
+  border: none;
+  border-radius: 14px;
+  padding: 17px;
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  cursor: pointer;
+}
+
+.save-button:disabled {
+  cursor: default;
+}
+
+.status-msg {
+  text-align: center;
+  font-size: 14px;
+  color: var(--muted);
+}
+
+.status-msg.success { color: var(--success); }
+.status-msg.error { color: var(--danger); }
+
+.filters {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.project-select {
+  flex: 1;
+  min-width: 0;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 10px 16px;
+  font-size: 14px;
+  background: var(--surface);
+  color: var(--ink);
+}
+
+.project-select:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.filters select {
+  flex: 1;
+  min-width: 120px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 10px 14px;
+  font-size: 13px;
+  background: var(--surface);
+  color: var(--ink);
+}
+
+.task-screen {
+  gap: 14px;
+}
+
+.tasks-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.tasks-icons {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.icon-btn {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--muted);
+  font-size: 19px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.icon-btn.active, .icon-btn:hover {
+  color: var(--ink);
+}
+
+.filter-toggle.active {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+.task-search {
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 10px 14px;
+  font-size: 15px;
+  background: var(--surface);
+  color: var(--ink);
+}
+
+.task-search:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.stats-bar {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  background: var(--surface);
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+.stat {
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  padding: 11px 4px;
+  display: flex;
+  flex-direction: row;
+  align-items: baseline;
+  justify-content: center;
+  gap: 6px;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+}
+
+.stat.active {
+  color: var(--ink);
+  border-bottom-color: var(--accent);
+}
+
+.stat-num {
+  font-size: 21px;
+  font-weight: 700;
+  color: var(--ink);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.stat.active .stat-num {
+  color: var(--accent);
+}
+
+.stat-label {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
+.task-groups {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.task-section + .task-section {
+  margin-top: 12px;
+}
+
+.section-header {
+  width: 100%;
+  border: none;
+  background: transparent;
+  color: var(--accent);
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  /* Right side matches the due date column's inset in the rows below,
+     so the chevron lines up with it instead of sitting at the bare
+     screen edge. */
+  padding: 6px 12px 6px 2px;
+  cursor: pointer;
+}
+
+.chevron {
+  font-size: 13px;
+}
+
+.task-rows {
+  display: flex;
+  flex-direction: column;
+}
+
+.task-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  /* Extra right padding keeps the due date away from the very edge,
+     otherwise a thumb scrolling near the edge covers it. */
+  padding: 12px 12px 12px 2px;
+  border-bottom: 1px solid var(--line);
+  border-radius: 10px;
+  transition: background 0.15s ease;
+}
+
+/* Brief confirmation state right after tapping the checkbox, before the
+   row actually leaves the list, so the tap has visible feedback instead
+   of the row just vanishing. */
+.task-row.completing,
+.task-row.reopening {
+  background: rgba(229, 171, 54, 0.12);
+}
+
+.task-row.completing .task-row-title {
+  color: var(--muted);
+  text-decoration: line-through;
+}
+
+.task-rows .task-row:last-child {
+  border-bottom: none;
+}
+
+.task-row-body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.task-row-top {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.task-row-title {
+  font-size: 17px;
+  font-weight: 500;
+  color: var(--ink);
+  line-height: 1.35;
+  text-align: left;
+  flex: 1;
+  min-width: 0;
+}
+
+.task-row-due-wrap {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.task-flag {
+  color: var(--accent);
+  font-size: 12px;
+}
+
+.task-due {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.task-due.due-today {
+  color: var(--accent);
+}
+
+.task-row-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.task-project {
+  font-size: 15px;
+  color: var(--muted);
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.dot-bullet {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--muted);
+  display: inline-block;
+}
+
+.pill-outline {
+  font-size: 13px;
+  font-weight: 500;
+  padding: 3px 11px;
+  border-radius: 999px;
+  border: 1px solid currentColor;
+  color: var(--muted);
+}
+
+.pill-outline.priority-high { color: var(--danger); }
+.pill-outline.priority-medium { color: var(--accent); }
+.pill-outline.priority-low { color: var(--info); }
+
+.task-check {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 1.5px solid var(--muted);
+  background: transparent;
+  cursor: pointer;
+  position: relative;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.task-check:checked {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.task-check:checked::after {
+  content: "✓";
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--accent-ink);
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  border: none;
+  background: var(--surface-2);
+  cursor: pointer;
+}
+
+.dot.active {
+  background: var(--accent);
+}
+
+.login-screen {
+  justify-content: center;
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.login-input {
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 17px;
+  font-size: 18px;
+  background: var(--surface);
+  color: var(--ink);
+  text-align: right;
+  letter-spacing: 2px;
+}
+
+.login-input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+/* A single row, always in normal document flow below the screen content,
+   so it can never overlap or get hidden behind anything the way a
+   floating/absolute button positioned near the bottom could (behind the
+   keyboard, behind the save button, etc). */
+.bottom-bar {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  /* A fixed value rather than env(safe-area-inset-bottom): that only
+     works with viewport-fit=cover, which turned out to be part of what
+     caused a persistent edge-of-screen rendering glitch on iOS Safari.
+     This still lifts the bar clear of the home indicator area, just
+     without depending on that setting. */
+  padding: 12px 16px 32px;
+  position: relative;
+}
+
+.nav-arrow {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: none;
+  background: var(--surface);
+  color: var(--ink);
+  font-size: 18px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.nav-arrow:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+
+.dots {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.logout-link {
+  position: absolute;
+  /* Bottom-left, not bottom-right, that corner is where a thumb rests
+     most naturally while holding the phone, an easy accidental tap. */
+  left: 16px;
+  background: none;
+  border: none;
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+  opacity: 0.7;
+}
