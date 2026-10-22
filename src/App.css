@@ -144,7 +144,7 @@ body {
 }
 
 .calendar-toggle {
-  flex: 1;
+  flex: 1 1 0;
   min-width: 0;
   font-size: 14px;
   color: var(--ink);
@@ -157,27 +157,7 @@ body {
   background: var(--surface);
 }
 
-/* Small checkbox at the start of the options row: send this note straight
-   to the Tasks database. */
-.task-check {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  flex: none;
-  font-size: 14px;
-  color: var(--ink);
-  cursor: pointer;
-}
-
-.task-check input {
-  width: 20px;
-  height: 20px;
-  margin: 0;
-  accent-color: var(--accent);
-  cursor: pointer;
-}
-
-/* Full-width tile above the Task checkbox and project row. Only shown on
+/* Full-width tile above the Add to tasks and project row. Only shown on
    deployments that have Google Calendar set up. */
 .calendar-tile {
   flex: none;
@@ -241,7 +221,7 @@ body {
 }
 
 .project-select {
-  flex: 1;
+  flex: 1 1 0;
   min-width: 0;
   border: 1px solid var(--line);
   border-radius: 999px;

@@ -214,15 +214,14 @@ export default function NoteScreen() {
       )}
 
       <div className="capture-options-row">
-        <label className="task-check">
-          <input
-            type="checkbox"
-            checked={addAsTask}
-            onChange={toggleTask}
-            aria-label="Add to tasks"
-          />
-          Task
-        </label>
+        <button
+          type="button"
+          className={`calendar-toggle ${addAsTask ? "active" : ""}`}
+          onClick={toggleTask}
+          aria-pressed={addAsTask}
+        >
+          Add to tasks
+        </button>
 
         <select
           className="project-select"
