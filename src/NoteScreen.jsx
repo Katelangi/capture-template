@@ -191,15 +191,6 @@ export default function NoteScreen() {
         />
       </div>
 
-      <button
-        type="button"
-        className={`calendar-toggle task-toggle ${addAsTask ? "active" : ""}`}
-        onClick={toggleTask}
-        aria-pressed={addAsTask}
-      >
-        {addAsTask ? "✓ Add to tasks" : "Add to tasks"}
-      </button>
-
       {addAsTask && !addToCalendar && (
         <div className="calendar-fields">
           <input
@@ -212,6 +203,16 @@ export default function NoteScreen() {
       )}
 
       <div className="capture-options-row">
+        <label className="task-check">
+          <input
+            type="checkbox"
+            checked={addAsTask}
+            onChange={toggleTask}
+            aria-label="Add to tasks"
+          />
+          Task
+        </label>
+
         {calendarEnabled && (
           <button
             type="button"

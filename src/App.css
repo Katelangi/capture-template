@@ -140,7 +140,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
+  gap: 10px;
 }
 
 .calendar-toggle {
@@ -157,10 +157,31 @@ body {
   background: var(--surface);
 }
 
-/* Full-width row of its own, above the calendar and project pair. */
-.task-toggle {
+/* Small checkbox at the start of the options row: send this note straight
+   to the Tasks database. */
+.task-check {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
   flex: none;
-  width: 100%;
+  font-size: 14px;
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.task-check input {
+  width: 20px;
+  height: 20px;
+  margin: 0;
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+
+/* Three controls share this row, so the two pills tighten up a little. */
+.capture-options-row .calendar-toggle,
+.capture-options-row .project-select {
+  font-size: 13px;
+  padding: 10px 12px;
 }
 
 .calendar-toggle.active {
